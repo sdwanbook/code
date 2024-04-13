@@ -1,5 +1,5 @@
 # Sample code for Cisco SD-WAN 
-Sample scripts.
+Sample scripts
 
 ## Pre-requirement for Python modules:
 - "requests" library (install it with ```pip install requests```)
