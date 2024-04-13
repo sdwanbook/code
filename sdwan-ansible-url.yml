@@ -1,0 +1,36 @@
+--- 
+- name: Demo Ansible Playbook for API interactions
+  hosts: localhost
+  gather_facts: no
+  vars:
+    manager_address:  "{{ lookup('ansible.builtin.env', 'MANAGER_ADDR') }}"
+    manager_username: "{{ lookup('ansible.builtin.env', 'MANAGER_USER') }}"
+    manager_password: "{{ lookup('ansible.builtin.env', 'MANAGER_PASS') }}"
+
+  tasks:
+  - name: Get Cookie
+    uri:
+      url: https://{{ manager_address }}/j_security_check
+      method: POST
+      body:
+        j_username: "{{ manager_username }}"
+        j_password: "{{ manager_password }}"
+      body_format: form-urlencoded
+      return_content: yes
+      validate_certs: no
+      status_code: 200
+    register: auth_result
+
+  - name: Obtain List of Devices
+    uri:
+      url: https://{{ manager_address }}/dataservice/device
+      method: GET
+      headers:
+        Cookie: "{{ auth_result.set_cookie }}"
+      status_code: 200
+      return_content: yes
+      validate_certs: no
+    register: output
+
+  - debug:
+      var: "{{ output.content }}.data"

@@ -1,0 +1,31 @@
+---
+- name: Demo Ansible Playbook for cisco.catalystwan module
+  hosts: localhost
+  gather_facts: false
+  vars:
+    manager_address:  "{{ lookup('ansible.builtin.env', 'MANAGER_ADDR') }}"
+    manager_username: "{{ lookup('ansible.builtin.env', 'MANAGER_USER') }}"
+    manager_password: "{{ lookup('ansible.builtin.env', 'MANAGER_PASS') }}"
+
+  tasks:
+    - name: "1: Health check: verify all BFD sessions are up"
+      cisco.catalystwan.health_checks:
+        check_type: bfd
+        filters:
+          device_ip: "10.0.10.1"
+        manager_authentication:
+          url: "{{ manager_address }}"
+          username: "{{ manager_username }}"
+          password: "{{ manager_password }}"
+
+    - name: "2: Obtain List of Devices"
+      cisco.catalystwan.devices_info:
+        device_category: vedges
+        manager_authentication:
+          url: "{{ manager_address }}"
+          username: "{{ manager_username }}"
+          password: "{{ manager_password }}"
+      register: edge_devices
+
+    - debug:
+          var: edge_devices.devices
